@@ -94,9 +94,11 @@ $listing_result = $conn->query($listing_sql);
     </style>
 </head>
 <body>
-
-    <div class="navbar">
-        <div class="logo">Home</div> <div class="search-container">
+	
+<div class="navbar">
+        <div class="logo">Home</div> 
+        
+        <div class="search-container">
             <form action="search_results.php" method="GET">
                 <input type="text" name="query" placeholder="Search bar...">
                 <button type="submit">🔍</button>
@@ -109,6 +111,16 @@ $listing_result = $conn->query($listing_sql);
             <a href="account.php">Account</a>
             <a href="logout.php" style="color: #ff6b6b;">Logout</a>
         </div>
+    </div> <div style="background-color: #444; padding: 10px 20px; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+        <a href="catalog.php" style="color: white; text-decoration: none; font-weight: bold;">All Parts</a>
+        <a href="catalog.php?type=CPU" style="color: #ddd; text-decoration: none;">CPU</a>
+        <a href="catalog.php?type=GPU" style="color: #ddd; text-decoration: none;">GPU</a>
+        <a href="catalog.php?type=RAM" style="color: #ddd; text-decoration: none;">RAM</a>
+        <a href="catalog.php?type=Motherboard" style="color: #ddd; text-decoration: none;">Motherboard</a>
+        <a href="catalog.php?type=Storage" style="color: #ddd; text-decoration: none;">Storage</a>
+        <a href="catalog.php?type=PSU" style="color: #ddd; text-decoration: none;">PSU</a>
+        <a href="catalog.php?type=Casing" style="color: #ddd; text-decoration: none;">Casing</a>
+        <a href="catalog.php?type=Cooler" style="color: #ddd; text-decoration: none;">Cooler</a>
     </div>
 
     <div class="container">
