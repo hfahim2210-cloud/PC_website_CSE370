@@ -200,7 +200,7 @@ $listing_result = $conn->query($listing_sql);
             <?php if ($inventory_result->num_rows > 0): ?>
                 <?php while($row = $inventory_result->fetch_assoc()): ?>
                     <div class="card">
-                        <img src="<?php echo $row['image'] ? $row['image'] : 'https://via.placeholder.com/150'; ?>" alt="Part">
+                        <img src="images/<?php echo htmlspecialchars($row['image']); ?>" alt="Part" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
                         <h3><?php echo htmlspecialchars($row['name']); ?></h3>
                         <p class="price">$<?php echo $row['price']; ?></p>
                         <p><?php echo htmlspecialchars($row['brand']); ?></p>

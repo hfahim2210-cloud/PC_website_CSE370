@@ -216,7 +216,7 @@ function isChecked($param, $value) {
                     <?php while($row = $result->fetch_assoc()): ?>
                         <div class="card">
                             <img src="images/<?php echo htmlspecialchars($row['image']); ?>" 
-                                 onerror="this.src='https://via.placeholder.com/150';" alt="Part">
+                                 onerror="this.onerror=null; this.src='https://via.placeholder.com/150';" alt="Part">
                             
                             <div class="card-info">
                                 <h3><?php echo htmlspecialchars($row['name']); ?></h3>
