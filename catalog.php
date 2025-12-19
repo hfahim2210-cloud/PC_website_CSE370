@@ -7,17 +7,13 @@ require 'DBconnect.php';
 // Initialize base query components
 $where_clauses = [];
 $params = [];
-$types = ""; // For bind_param
+$types = ""; 
 
-// A. Filter by Type (from URL or Sidebar)
+// A. Filter by Type 
 if (isset($_GET['type']) && !empty($_GET['type'])) {
-    // If multiple types selected (sidebar), or single (navbar)
     $selected_types = is_array($_GET['type']) ? $_GET['type'] : [$_GET['type']];
-    
-    // Create placeholders like (?, ?)
     $placeholders = implode(',', array_fill(0, count($selected_types), '?'));
     $where_clauses[] = "type IN ($placeholders)";
-    
     foreach ($selected_types as $t) {
         $params[] = $t;
         $types .= "s";
@@ -26,10 +22,9 @@ if (isset($_GET['type']) && !empty($_GET['type'])) {
 
 // B. Filter by Brand
 if (isset($_GET['brand']) && !empty($_GET['brand'])) {
-    $selected_brands = $_GET['brand']; // Array from checkboxes
+    $selected_brands = $_GET['brand']; 
     $placeholders = implode(',', array_fill(0, count($selected_brands), '?'));
     $where_clauses[] = "brand IN ($placeholders)";
-    
     foreach ($selected_brands as $b) {
         $params[] = $b;
         $types .= "s";
@@ -85,14 +80,14 @@ function isChecked($param, $value) {
     <style>
         body { font-family: sans-serif; margin: 0; background-color: #f4f4f4; }
         
-        /* Navbar (Same as Index) */
+        /* Navbar */
         .navbar { display: flex; justify-content: space-between; background-color: #333; color: white; padding: 15px 20px; align-items: center; }
         .navbar a { color: white; text-decoration: none; margin-left: 15px; font-weight: bold; }
         
         /* Layout Grid */
         .main-container { display: flex; max-width: 1200px; margin: 20px auto; gap: 20px; padding: 0 10px; }
         
-        /* Left Sidebar */
+        /* Left Sidebar (Filters) */
         .sidebar { flex: 1; min-width: 200px; background: white; padding: 20px; border-radius: 5px; height: fit-content; }
         .filter-group { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
         .filter-group h4 { margin-top: 0; margin-bottom: 10px; }
@@ -102,13 +97,13 @@ function isChecked($param, $value) {
         /* Right Content */
         .content { flex: 3; }
         
-        /* Toolbar (Sort + View) */
+        /* Toolbar */
         .toolbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: white; padding: 10px 15px; border-radius: 5px; }
         
-        /* Grid View (Default) */
+        /* Grid View */
         .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 20px; }
         
-        /* List View (Toggled via JS) */
+        /* List View */
         .products-list { display: flex; flex-direction: column; gap: 15px; }
         .products-list .card { display: flex; align-items: center; text-align: left; padding: 15px; }
         .products-list .card img { width: 120px; height: 100px; margin-right: 20px; }
@@ -123,6 +118,20 @@ function isChecked($param, $value) {
 
         /* Footer */
         .footer { background: #eee; text-align: center; padding: 20px; margin-top: 40px; border-top: 2px solid #333; }
+
+        /* --- SIDEBAR CART CSS --- */
+        .cart-sidebar {
+            height: 100%; width: 350px; position: fixed; z-index: 9999;
+            top: 0; right: -350px; background-color: white;
+            box-shadow: -2px 0 10px rgba(0,0,0,0.2); transition: 0.3s;
+            display: flex; flex-direction: column;
+        }
+        .sidebar-header { padding: 20px; background: #333; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-content { flex-grow: 1; padding: 20px; overflow-y: auto; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid #ddd; background: #f9f9f9; }
+        .mini-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 14px; }
+        .view-cart-btn { width: 100%; background: #333; color: white; padding: 12px; text-align: center; text-decoration: none; display: block; margin-top: 10px; font-weight: bold; }
+        .close-btn { cursor: pointer; font-size: 24px; }
     </style>
 </head>
 <body>
@@ -134,7 +143,9 @@ function isChecked($param, $value) {
         </div>
         <div>
             <a href="pc_builder.php">PC Builder</a>
-            <a href="cart.php">Cart</a>
+            
+            <a href="javascript:void(0)" onclick="toggleCart()">Cart</a>
+            
             <a href="account.php">Account</a>
         </div>
     </div>
@@ -177,9 +188,8 @@ function isChecked($param, $value) {
             <div class="toolbar">
                 <form id="sortForm" action="catalog.php" method="GET" style="margin:0;">
                     <?php 
-                    // Loop through GET params to keep types/brands active when sorting
                     foreach ($_GET as $key => $val) {
-                        if ($key == 'sort') continue; // Don't duplicate sort
+                        if ($key == 'sort') continue;
                         if (is_array($val)) {
                             foreach ($val as $v) echo "<input type='hidden' name='{$key}[]' value='$v'>";
                         } else {
@@ -218,7 +228,7 @@ function isChecked($param, $value) {
                                     <input type="hidden" name="part_id" value="<?php echo $row['part_id']; ?>">
                                     <button type="submit" class="add-btn">Add to Cart</button>
                                 </form>
-                                </div>
+                            </div>
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
@@ -233,6 +243,53 @@ function isChecked($param, $value) {
         <p>Contact us: support@pcwebsite.com</p>
     </div>
 
+    <div id="mySidebar" class="cart-sidebar">
+        <div class="sidebar-header">
+            <span>Your Cart</span>
+            <span class="close-btn" onclick="toggleCart()">×</span>
+        </div>
+
+        <div class="sidebar-content">
+            <?php
+            // MINI CART PHP LOGIC
+            if (isset($_SESSION['users_id'])) {
+                $sb_uid = $_SESSION['users_id'];
+                $sb_sql = "SELECT p.name, p.price, ci.quantity 
+                           FROM Cart_Item ci 
+                           JOIN Cart c ON ci.cart_id = c.cart_id 
+                           JOIN PC_Part p ON ci.part_id = p.part_id 
+                           WHERE c.users_id = '$sb_uid'";
+                $sb_res = $conn->query($sb_sql);
+                
+                $sb_total = 0;
+
+                if ($sb_res && $sb_res->num_rows > 0) {
+                    while($item = $sb_res->fetch_assoc()) {
+                        $line_total = $item['price'] * $item['quantity'];
+                        $sb_total += $line_total;
+                        echo "<div class='mini-item'>";
+                        echo "<div><strong>{$item['name']}</strong><br>Qty: {$item['quantity']}</div>";
+                        echo "<div>$" . number_format($line_total, 2) . "</div>";
+                        echo "</div>";
+                    }
+                } else {
+                    echo "<p style='text-align:center;'>Cart is empty.</p>";
+                }
+            } else {
+                echo "<p>Please login to view cart.</p>";
+            }
+            ?>
+        </div>
+
+        <div class="sidebar-footer">
+            <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
+                <span>Subtotal:</span>
+                <span>$<?php echo isset($sb_total) ? number_format($sb_total, 2) : '0.00'; ?></span>
+            </div>
+            <a href="cart.php" class="view-cart-btn">VIEW CART</a>
+        </div>
+    </div>
+
     <script>
         function setView(view) {
             const container = document.getElementById('productContainer');
@@ -240,6 +297,15 @@ function isChecked($param, $value) {
                 container.className = 'products-list';
             } else {
                 container.className = 'products-grid';
+            }
+        }
+
+        function toggleCart() {
+            var sb = document.getElementById("mySidebar");
+            if (sb.style.right === "0px") {
+                sb.style.right = "-350px";
+            } else {
+                sb.style.right = "0px";
             }
         }
     </script>

@@ -11,13 +11,12 @@ $user_id = $_SESSION['users_id'];
 $action = $_POST['action'] ?? '';
 
 // 1. Get or Create Cart for User
-// Your schema uses 'date_created', not 'created_at'
 $cart_query = $conn->query("SELECT cart_id FROM Cart WHERE users_id = '$user_id'");
 
 if ($cart_query->num_rows > 0) {
     $cart_id = $cart_query->fetch_assoc()['cart_id'];
 } else {
-    // Insert new cart
+    // Insert new cart if one doesn't exist
     $conn->query("INSERT INTO Cart (users_id, date_created) VALUES ('$user_id', NOW())");
     $cart_id = $conn->insert_id;
 }
@@ -26,48 +25,43 @@ if ($cart_query->num_rows > 0) {
 if ($action == 'add') {
     $part_id = $_POST['part_id'];
     
-    // Check if this part is already in the cart
+    // Check if item exists
     $check = $conn->query("SELECT quantity FROM Cart_Item WHERE cart_id='$cart_id' AND part_id='$part_id'");
     
     if ($check->num_rows > 0) {
-        // Item exists: Just increase quantity
         $conn->query("UPDATE Cart_Item SET quantity = quantity + 1 WHERE cart_id='$cart_id' AND part_id='$part_id'");
     } else {
-        // Item is new: We must generate a cart_item_id manually because your DB doesn't auto-increment it
+        // MANUAL ID CALCULATION (Crucial for your schema)
         $max_sql = "SELECT MAX(cart_item_id) as max_id FROM Cart_Item WHERE cart_id='$cart_id'";
-        $max_res = $conn->query($max_sql);
-        $row = $max_res->fetch_assoc();
+        $row = $conn->query($max_sql)->fetch_assoc();
         $next_item_id = ($row['max_id'] !== null) ? $row['max_id'] + 1 : 1;
 
-        // Insert with the manually calculated ID
         $conn->query("INSERT INTO Cart_Item (cart_id, cart_item_id, part_id, quantity) 
                       VALUES ('$cart_id', '$next_item_id', '$part_id', 1)");
     }
-    // Return to previous page
+    // Return to the previous page so the user can keep shopping
     header("Location: " . $_SERVER['HTTP_REFERER']); 
     exit();
 }
 
-// 3. Handle UPDATE Quantity (+/-)
+// 3. Handle UPDATE Quantity (Increase/Decrease)
 if ($action == 'update_qty') {
-    $part_id = $_POST['part_id']; // We use part_id to identify the row now
+    $part_id = $_POST['part_id'];
     $direction = $_POST['direction'];
 
     if ($direction == 'increase') {
         $conn->query("UPDATE Cart_Item SET quantity = quantity + 1 WHERE cart_id='$cart_id' AND part_id='$part_id'");
     } elseif ($direction == 'decrease') {
-        // Check current quantity
         $q_sql = "SELECT quantity FROM Cart_Item WHERE cart_id='$cart_id' AND part_id='$part_id'";
-        $current_qty = $conn->query($q_sql)->fetch_assoc()['quantity'];
+        $curr = $conn->query($q_sql)->fetch_assoc()['quantity'];
         
-        if ($current_qty > 1) {
+        if ($curr > 1) {
             $conn->query("UPDATE Cart_Item SET quantity = quantity - 1 WHERE cart_id='$cart_id' AND part_id='$part_id'");
         } else {
-            // If qty is 1, remove the item entirely
             $conn->query("DELETE FROM Cart_Item WHERE cart_id='$cart_id' AND part_id='$part_id'");
         }
     }
-    header("Location: cart.php");
+    header("Location: cart.php"); // Updates usually happen on the full cart page
     exit();
 }
 ?>
