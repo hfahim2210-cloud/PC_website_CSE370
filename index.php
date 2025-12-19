@@ -173,6 +173,69 @@ $listing_result = $conn->query($listing_sql);
         <p>Contact us: support@pcwebsite.com | Phone: +123 456 789</p>
         <p>&copy; 2025 PC Shop Project</p>
     </div>
+    <style>
+.cart-sidebar {
+    height: 100%; width: 350px; position: fixed; z-index: 2000;
+    top: 0; right: -350px; background-color: white;
+    box-shadow: -2px 0 5px rgba(0,0,0,0.5); transition: 0.3s;
+    padding-top: 60px; display: flex; flex-direction: column;
+}
+.sidebar-content { flex-grow: 1; padding: 20px; overflow-y: auto; }
+.sidebar-footer { padding: 20px; border-top: 1px solid #ddd; background: #f9f9f9; }
+.close-btn { position: absolute; top: 15px; left: 20px; font-size: 30px; cursor: pointer; color: #333; text-decoration: none; }
+.sidebar-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; }
+</style>
+
+<div id="mySidebar" class="cart-sidebar">
+    <a href="javascript:void(0)" class="close-btn" onclick="toggleCart()">×</a>
+    
+    <div class="sidebar-content">
+        <h3>Your Cart</h3>
+        <?php
+        // Mini Fetch for Sidebar using Existing Schema
+        if(isset($_SESSION['users_id'])) {
+            $uid = $_SESSION['users_id'];
+            $sb_sql = "SELECT p.name, p.price, ci.quantity FROM Cart_Item ci 
+                       JOIN Cart c ON ci.cart_id = c.cart_id 
+                       JOIN PC_Part p ON ci.part_id = p.part_id 
+                       WHERE c.users_id = '$uid'";
+            $sb_res = $conn->query($sb_sql);
+            
+            $sb_total = 0;
+            if($sb_res && $sb_res->num_rows > 0){
+                while($item = $sb_res->fetch_assoc()){
+                    $sb_total += ($item['price'] * $item['quantity']);
+                    echo "<div class='sidebar-item'>";
+                    echo "<div><strong>{$item['name']}</strong><br>Qty: {$item['quantity']}</div>";
+                    echo "<div>$" . number_format($item['price'] * $item['quantity'], 2) . "</div>";
+                    echo "</div>";
+                }
+            } else {
+                echo "<p>Cart is empty</p>";
+            }
+        }
+        ?>
+    </div>
+
+    <div class="sidebar-footer">
+        <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
+            <span>Total:</span>
+            <span>$<?php echo isset($sb_total) ? number_format($sb_total, 2) : '0.00'; ?></span>
+        </div>
+        <button onclick="window.location.href='cart.php'" style="width:100%; padding:10px; background:#007bff; color:white; border:none; cursor:pointer;">View Cart</button>
+    </div>
+</div>
+
+<script>
+    function toggleCart() {
+        var sb = document.getElementById("mySidebar");
+        if (sb.style.right === "0px") {
+            sb.style.right = "-350px";
+        } else {
+            sb.style.right = "0px";
+        }
+    }
+</script>
 
 </body>
 </html>

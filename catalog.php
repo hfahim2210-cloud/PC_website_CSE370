@@ -213,11 +213,12 @@ function isChecked($param, $value) {
                                 <p style="color: #666;"><?php echo htmlspecialchars($row['brand']); ?> | <?php echo $row['type']; ?></p>
                                 <p class="price">$<?php echo number_format($row['price'], 2); ?></p>
                                 
-                                <form action="add_to_cart.php" method="POST">
+                                <form action="cart_actions.php" method="POST">
+                                    <input type="hidden" name="action" value="add">
                                     <input type="hidden" name="part_id" value="<?php echo $row['part_id']; ?>">
                                     <button type="submit" class="add-btn">Add to Cart</button>
                                 </form>
-                            </div>
+                                </div>
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
