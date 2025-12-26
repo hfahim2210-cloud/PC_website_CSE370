@@ -42,7 +42,7 @@ if (isset($_GET['remove_item'])) {
     exit();
 }
 
-// --- 3. LOGIC: ADD ALL TO CART (FINAL FIX: SELF-HEALING & STRICT CHECKS) ---
+// --- 3. LOGIC: ADD ALL TO CART (BULLETPROOF VERSION) ---
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_all_to_cart'])) {
     
     // A. Get or Create Cart ID
@@ -64,47 +64,44 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_all_to_cart'])) {
     }
     $check_cart->close();
 
-    // === B. SELF-HEALING FIX (CRITICAL) ===
-    // This line deletes the bad "1-0" entry that is causing your Fatal Error.
+    // === B. SURGICAL CLEANUP (Removes the cause of the crash) ===
+    // This forcibly deletes the corrupted "1-0" row so the script can proceed.
     $conn->query("DELETE FROM Cart_Item WHERE part_id = 0"); 
-    // ======================================
+    // ============================================================
 
     // C. Fetch Items from Build
-    // We select ALL items, but we will filter them strictly in the loop below
-    $fetch_stmt = $conn->prepare("SELECT part_id, quantity FROM Build_Items WHERE build_id = ?");
+    $fetch_sql = "SELECT part_id, quantity FROM Build_Items WHERE build_id = ?";
+    $fetch_stmt = $conn->prepare($fetch_sql);
     $fetch_stmt->bind_param("i", $build_id);
     $fetch_stmt->execute();
     $result_set = $fetch_stmt->get_result();
 
-    $items_to_process = [];
+    // D. Safe Insert Loop
+    // We use a specific SQL command that handles duplicates automatically
+    $insert_stmt = $conn->prepare("
+        INSERT INTO Cart_Item (cart_id, part_id, quantity) 
+        VALUES (?, ?, ?) 
+        ON DUPLICATE KEY UPDATE quantity = quantity + VALUES(quantity)
+    ");
+
     while ($row = $result_set->fetch_assoc()) {
-        $items_to_process[] = $row;
-    }
-    $fetch_stmt->close();
+        $pid = (int)$row['part_id'];
+        $qty = (int)$row['quantity'];
 
-    // D. Loop and Insert (Strict logic to prevent crashes)
-    foreach ($items_to_process as $item) {
-        $pid = (int)$item['part_id'];
-        $qty = (int)$item['quantity'];
-
-        // 1. STRICT FILTER: If Part ID is 0, SKIP IT.
-        // This ensures we never try to insert '0' again.
+        // LAYER 2 PROTECTION: STRICTLY SKIP '0'
         if ($pid <= 0) {
             continue; 
         }
 
-        // 2. CHECK IF ITEM EXISTS IN CART ALREADY
-        // We use a fresh query here to be absolutely sure of the state
-        $check_exist = $conn->query("SELECT * FROM Cart_Item WHERE cart_id = $cart_id AND part_id = $pid");
-
-        if ($check_exist->num_rows > 0) {
-            // 3. UPDATE existing item (Prevents 'Duplicate entry' error on valid parts)
-            $conn->query("UPDATE Cart_Item SET quantity = quantity + $qty WHERE cart_id = $cart_id AND part_id = $pid");
-        } else {
-            // 4. INSERT new item
-            $conn->query("INSERT INTO Cart_Item (cart_id, part_id, quantity) VALUES ($cart_id, $pid, $qty)");
+        // LAYER 3 PROTECTION: ATOMIC INSERT
+        if ($cart_id > 0 && $qty > 0) {
+            $insert_stmt->bind_param("iii", $cart_id, $pid, $qty);
+            $insert_stmt->execute();
         }
     }
+    
+    $fetch_stmt->close();
+    $insert_stmt->close();
 
     // E. Redirect
     echo "<script>window.location.href='cart.php';</script>";
