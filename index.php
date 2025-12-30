@@ -187,7 +187,7 @@ $listing_result = $conn->query($listing_sql);
 
     <div class="container">
 
-        <h2>Section 1: User Details</h2>
+        <h2>User Details</h2>
         <div class="user-details">
             <p><strong>Name:</strong> <?php echo htmlspecialchars($user_data['name']); ?></p>
             <p><strong>Email:</strong> <?php echo htmlspecialchars($user_data['email']); ?></p>
@@ -195,7 +195,7 @@ $listing_result = $conn->query($listing_sql);
             <p><strong>Address:</strong> <?php echo htmlspecialchars($user_data['address']); ?></p>
         </div>
 
-        <h2>Section 2: Listing of PC Parts (Inventory)</h2>
+        <h2>Listing of PC Parts (Inventory)</h2>
         <div class="scroll-container">
             <?php if ($inventory_result->num_rows > 0): ?>
                 <?php while($row = $inventory_result->fetch_assoc()): ?>
@@ -216,7 +216,12 @@ $listing_result = $conn->query($listing_sql);
             <?php endif; ?>
         </div>
 
-        <h2>Section 3: Listing of PC Parts (User Listings)</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; padding-bottom: 10px; margin-top: 30px;">
+            <h2 style="border-bottom: none; margin: 0; padding: 0;">Listing of PC Parts (User Listings)</h2>
+            <a href="listing.php" style="background-color: #333; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 0.9em;">
+                Check all listings →
+            </a>
+        </div>
         <div class="scroll-container">
             <?php if ($listing_result->num_rows > 0): ?>
                 <?php while($row = $listing_result->fetch_assoc()): ?>
