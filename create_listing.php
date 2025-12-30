@@ -19,6 +19,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     $user_id = $_SESSION['users_id'];
     $title = $conn->real_escape_string($_POST['title']);
+    
+    // --- FIX STARTS HERE ---
+    // This line was MISSING. We must "catch" the category from the form.
+    $category = $conn->real_escape_string($_POST['category']); 
+    // --- FIX ENDS HERE ---
+
     $price = (float)$_POST['price'];
     $type = $conn->real_escape_string($_POST['type']);
     $desc = $conn->real_escape_string($_POST['description']);
@@ -53,6 +59,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // --- INSERT INTO DATABASE ---
     if (empty($error)) {
         // We use NOW() for created_at so sorting works immediately
+        // Note: $category is now defined, so this will work correctly
         $sql = "INSERT INTO Listing (users_id, title, category, description, price, type, status, image, created_at) 
         VALUES ('$user_id', '$title', '$category', '$desc', '$price', '$type', 'Active', '$image_filename', NOW())";
 
