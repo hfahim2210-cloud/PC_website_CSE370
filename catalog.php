@@ -126,6 +126,7 @@ $all_types = ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU', 'Casing', 'C
             <a href="pc_builder.php">PC Builder</a>
             <a href="javascript:void(0)" onclick="toggleCart()">Cart</a>
             <a href="account.php">Account</a>
+            <a href="logout.php" style="color: #ff6b6b;">Logout</a>
         </div>
     </div>
 

@@ -31,14 +31,34 @@ $c_stmt->bind_param("i", $user_id);
 $c_stmt->execute();
 $c_res = $c_stmt->get_result();
 
+// 3. Fetch Cart Items
+$cart_id = 0;
+$cart_items = [];
+$subtotal = 0;
+
+// --- FIXED QUERY ---
+// We join Cart with Cart_Item to ensure we only pick a cart that actually contains products.
+$c_sql = "SELECT c.cart_id 
+          FROM Cart c
+          INNER JOIN Cart_Item ci ON c.cart_id = ci.cart_id
+          WHERE c.users_id = ? 
+          ORDER BY c.cart_id DESC 
+          LIMIT 1";
+
+$c_stmt = $conn->prepare($c_sql);
+$c_stmt->bind_param("i", $user_id);
+$c_stmt->execute();
+$c_res = $c_stmt->get_result();
+
 if ($c_res->num_rows > 0) {
     $cart_id = $c_res->fetch_assoc()['cart_id'];
     
-    // Get items with prices
-    $i_sql = "SELECT p.name, p.price, ci.quantity 
+    // Now fetch the item details for this valid cart
+    $i_sql = "SELECT p.name, p.price, ci.quantity, ci.part_id 
               FROM Cart_Item ci 
               JOIN PC_Part p ON ci.part_id = p.part_id 
               WHERE ci.cart_id = ?";
+              
     $i_stmt = $conn->prepare($i_sql);
     $i_stmt->bind_param("i", $cart_id);
     $i_stmt->execute();
@@ -88,13 +108,39 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['place_order'])) {
     $ins_stmt->bind_param("iidss", $user_id, $cart_id, $total_amount, $pay_method, $final_address);
     
     if ($ins_stmt->execute()) {
-        // Clear Cart or create new one? 
-        // Usually we create a NEW cart for the user now.
-        $new_cart = $conn->query("INSERT INTO Cart (users_id, created_at) VALUES ($user_id, NOW())");
-        
+        // 1. Get the ID of the Order we just created
+        $new_order_id = $conn->insert_id;
+
+        // 2. SNAPSHOT: Get items from Cart to save their price/details permanently
+        $cart_sql = "SELECT ci.part_id, ci.quantity, p.price 
+                     FROM Cart_Item ci
+                     JOIN PC_Part p ON ci.part_id = p.part_id
+                     WHERE ci.cart_id = ?";
+                     
+        $stmt_items = $conn->prepare($cart_sql);
+        $stmt_items->bind_param("i", $cart_id);
+        $stmt_items->execute();
+        $cart_result = $stmt_items->get_result();
+
+        // 3. COPY items into Order_Items table
+        while ($item = $cart_result->fetch_assoc()) {
+            $part = $item['part_id'];
+            $qty  = $item['quantity'];
+            $price = $item['price']; // The price at this exact moment
+
+            $insert_item = "INSERT INTO Order_Items (order_id, part_id, quantity, price_at_purchase) 
+                            VALUES ('$new_order_id', '$part', '$qty', '$price')";
+            $conn->query($insert_item);
+        }
+
+        // 4. EMPTY the Cart (Delete items so cart is empty for next time)
+        // We delete from Cart_Item, keeping the Cart ID alive (or you can create a new one as you preferred)
+        $conn->query("DELETE FROM Cart_Item WHERE cart_id = '$cart_id'");
+
+        // 5. Success Message
         echo "<script>
             alert('Order has been recorded successfully! ✅');
-            window.location.href = 'index.php'; // Redirect to home
+            window.location.href = 'index.php';
         </script>";
     } else {
         echo "<script>alert('Error placing order.');</script>";

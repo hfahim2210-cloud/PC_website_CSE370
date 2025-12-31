@@ -18,15 +18,15 @@ $user_id = $_SESSION['users_id'];
 if (isset($_GET['id'])) {
     $listing_id = intval($_GET['id']);
     
-    // Security: Only select if it belongs to the logged-in user!
-    $sql = "SELECT * FROM Listing WHERE id = '$listing_id' AND users_id = '$user_id'";
+    // --- FIX 1: Use 'listing_id' instead of 'id' ---
+    $sql = "SELECT * FROM Listing WHERE listing_id = '$listing_id' AND users_id = '$user_id'";
     $result = $conn->query($sql);
 
     if ($result->num_rows == 1) {
         $row = $result->fetch_assoc();
     } else {
         // Listing doesn't exist or doesn't belong to this user
-        header("Location: account.php"); 
+        header("Location: my_listings.php"); 
         exit();
     }
 } 
@@ -64,7 +64,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     // --- UPDATE DATABASE ---
     if (empty($error)) {
-        // Note: WE use WHERE users_id = $user_id again for extra safety
+        // --- FIX 2: Use 'listing_id' in WHERE clause ---
         $sql = "UPDATE Listing SET 
                 title='$title', 
                 category='$category',
@@ -72,10 +72,10 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
                 price='$price', 
                 type='$type', 
                 image='$image_filename' 
-                WHERE id='$listing_id' AND users_id='$user_id'";
+                WHERE listing_id='$listing_id' AND users_id='$user_id'";
 
         if ($conn->query($sql) === TRUE) {
-            header("Location: account.php"); // Go back to account dashboard
+            header("Location: my_listings.php"); // Go back to the table view
             exit();
         } else {
             $error = "Database Error: " . $conn->error;
@@ -84,11 +84,11 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
     
     // Keep data in $row so the form doesn't go blank on error
     $row = $_POST; 
-    $row['id'] = $listing_id;
-    $row['image'] = $old_image; // Keep old image for display
+    $row['listing_id'] = $listing_id; // Update key for consistency
+    $row['image'] = $old_image; 
 } else {
     // If accessed without ID or POST
-    header("Location: account.php");
+    header("Location: my_listings.php");
     exit();
 }
 ?>
@@ -99,7 +99,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <meta charset="UTF-8">
     <title>Edit Listing - PC Shop</title>
     <style>
-        /* Reusing exact styles from Create Listing for consistency */
+        /* Reusing styles from Create Listing */
         body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; color: #333; }
         .navbar { background-color: #333; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
         .navbar a { color: white; text-decoration: none; font-weight: bold; font-size: 1.1em; }
@@ -120,8 +120,11 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
     <div class="navbar">
-        <a href="index.php">Home</a>
-        <a href="account.php">Back to My Account</a>
+        <div class="logo">PC Shop</div>
+        <div class="nav-links">
+            <a href="index.php">Home</a>
+            <a href="my_listings.php">Back to My Listings</a>
+        </div>
     </div>
 
     <div class="container">
@@ -133,7 +136,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <form method="POST" action="edit_listing.php" enctype="multipart/form-data">
             
-            <input type="hidden" name="listing_id" value="<?php echo $row['id']; ?>">
+            <input type="hidden" name="listing_id" value="<?php echo $row['listing_id']; ?>">
             <input type="hidden" name="current_image" value="<?php echo $row['image']; ?>">
 
             <div class="form-group">

@@ -1,6 +1,6 @@
 <?php
 session_start();
-require 'DBconnect.php'; // Using your specific filename
+require 'DBconnect.php'; 
 
 $error = "";
 $success = "";
@@ -8,9 +8,10 @@ $success = "";
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $name = $_POST['name'];
     $email = $_POST['email'];
+    $phone = $_POST['phone']; // Capture Phone
+    $address = $_POST['address'];
     $password = $_POST['password'];
     $confirm_password = $_POST['confirm_password'];
-    $address = $_POST['address'];
 
     // 1. Basic Validation
     if ($password !== $confirm_password) {
@@ -25,13 +26,21 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         if ($check->num_rows > 0) {
             $error = "This email is already registered.";
         } else {
-            // 3. Insert New User
-            // Note: For now we store plain text passwords to match your testing.
-            // In production, change $password to password_hash($password, PASSWORD_DEFAULT)
+            // 3. Insert New User (WITHOUT Phone)
             $stmt = $conn->prepare("INSERT INTO Users (name, email, password, role, address) VALUES (?, ?, ?, 'Customer', ?)");
             $stmt->bind_param("ssss", $name, $email, $password, $address);
 
             if ($stmt->execute()) {
+                // 4. Get the new User ID and Insert Phone
+                $new_user_id = $conn->insert_id;
+                
+                if (!empty($phone)) {
+                    $phone_stmt = $conn->prepare("INSERT INTO users_Phone (users_id, phone) VALUES (?, ?)");
+                    $phone_stmt->bind_param("is", $new_user_id, $phone);
+                    $phone_stmt->execute();
+                    $phone_stmt->close();
+                }
+
                 $success = "Account created successfully! <a href='signin.php'>Login here</a>";
             } else {
                 $error = "Error: " . $conn->error;
@@ -76,6 +85,9 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
         <label>Email Address</label>
         <input type="email" name="email" required placeholder="user@example.com">
+
+        <label>Phone Number</label>
+        <input type="text" name="phone" required placeholder="017..." >
 
         <label>Address</label>
         <textarea name="address" rows="2" placeholder="123 Street, City"></textarea>
