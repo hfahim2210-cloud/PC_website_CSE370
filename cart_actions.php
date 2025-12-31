@@ -31,7 +31,7 @@ if ($action == 'add') {
     if ($check->num_rows > 0) {
         $conn->query("UPDATE Cart_Item SET quantity = quantity + 1 WHERE cart_id='$cart_id' AND part_id='$part_id'");
     } else {
-        // MANUAL ID CALCULATION (Crucial for your schema)
+        // MANUAL ID CALCULATION
         $max_sql = "SELECT MAX(cart_item_id) as max_id FROM Cart_Item WHERE cart_id='$cart_id'";
         $row = $conn->query($max_sql)->fetch_assoc();
         $next_item_id = ($row['max_id'] !== null) ? $row['max_id'] + 1 : 1;
@@ -44,7 +44,7 @@ if ($action == 'add') {
     exit();
 }
 
-// 3. Handle UPDATE Quantity (Increase/Decrease)
+// 3. Handle UPDATE Quantity (Increase/Decrease from main Cart Page)
 if ($action == 'update_qty') {
     $part_id = $_POST['part_id'];
     $direction = $_POST['direction'];
@@ -61,7 +61,19 @@ if ($action == 'update_qty') {
             $conn->query("DELETE FROM Cart_Item WHERE cart_id='$cart_id' AND part_id='$part_id'");
         }
     }
-    header("Location: cart.php"); // Updates usually happen on the full cart page
+    header("Location: cart.php"); 
+    exit();
+}
+
+// 4. Handle REMOVE Item (From Sidebar "X" button)
+if ($action == 'remove') {
+    $part_id = $_POST['part_id'];
+    
+    // Delete the specific item from the cart
+    $conn->query("DELETE FROM Cart_Item WHERE cart_id='$cart_id' AND part_id='$part_id'");
+
+    // Refresh the current page (Catalog, Index, etc.)
+    header("Location: " . $_SERVER['HTTP_REFERER']);
     exit();
 }
 ?>

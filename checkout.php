@@ -345,9 +345,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['place_order'])) {
     }
 
     function updateTotals(deliveryFee) {
-        deliveryCostEl.innerText = '$' + deliveryFee.toFixed(2);
+        deliveryCostEl.innerText = 'Tk' + deliveryFee.toFixed(2);
         const total = subtotal + deliveryFee;
-        finalTotalEl.innerText = '$' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); // Format currency
+        finalTotalEl.innerText = 'Tk' + total.toFixed(2).replace(/\d(?=(\d{3})+\.)/g, '$&,'); // Format currency
     }
 
     // 5. Form Validation

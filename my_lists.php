@@ -173,7 +173,7 @@ $result = $conn->query($sql);
                     
                     <div class="card-body">
                         <h3 class="card-title">'.htmlspecialchars($row['title']).'</h3>
-                        <div class="card-price">$'.number_format($row['price']).'</div>
+                        <div class="card-price">Tk'.number_format($row['price']).'</div>
                         
                         <div class="status-badge '.$status_class.'">'.$status_label.'</div>
                         

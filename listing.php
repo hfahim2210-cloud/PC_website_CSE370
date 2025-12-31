@@ -181,7 +181,7 @@ $result = $conn->query($sql);
             <h3>Filter by Price</h3>
             <div class="slider-container">
                 <input type="range" min="0" max="200000" step="1000" value="<?php echo $max_price; ?>" class="slider" name="max_price" oninput="document.getElementById('priceDisp').innerText = this.value">
-                <span class="price-label">Max: $<span id="priceDisp"><?php echo $max_price; ?></span></span>
+                <span class="price-label">Max: Tk<span id="priceDisp"><?php echo $max_price; ?></span></span>
             </div>
 
             <h3>Categories</h3>
@@ -249,7 +249,7 @@ $result = $conn->query($sql);
                             </div>
                             
                             <div class="card-actions">
-                                <div class="card-price">$'.number_format($row['price']).'</div>
+                                <div class="card-price">Tk'.number_format($row['price']).'</div>
                                 <a href="listing_details.php?id='.$row['listing_id'].'" class="view-details-link">View Details &rarr;</a>
                             </div>
                         </div>

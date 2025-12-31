@@ -36,138 +36,55 @@ $listing_result = $conn->query($listing_sql);
         body { font-family: sans-serif; margin: 0; padding: 0; box-sizing: border-box; }
         
         /* Navbar */
-        .navbar {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background-color: #333;
-            color: white;
-            padding: 15px 20px;
-        }
+        .navbar { display: flex; align-items: center; justify-content: space-between; background-color: #333; color: white; padding: 15px 20px; }
         .navbar a { color: white; text-decoration: none; margin-left: 15px; font-weight: bold; }
         .search-container { flex-grow: 1; margin: 0 20px; text-align: center; }
         .search-container input { width: 60%; padding: 5px; }
 
-        /* General Layout */
+        /* Layout */
         .container { padding: 20px; max-width: 1200px; margin: 0 auto; }
         h2 { border-bottom: 2px solid #333; padding-bottom: 10px; margin-top: 30px; }
 
-        /* Section 1: User Details Box */
-        .user-details {
-            border: 2px solid #000;
-            padding: 20px;
-            background-color: #f9f9f9;
-            margin-bottom: 20px;
-        }
+        /* User Details */
+        .user-details { border: 2px solid #000; padding: 20px; background-color: #f9f9f9; margin-bottom: 20px; }
 
-        /* Section 2 & 3: Horizontal Scroll Grid */
-        .scroll-container {
-            display: flex;
-            overflow-x: auto;
-            gap: 20px;
-            padding: 10px 0;
-            border: 1px solid #ddd;
-            background: #fff;
-        }
-        .card {
-            min-width: 200px;
-            border: 1px solid #ccc;
-            padding: 10px;
-            text-align: center;
-            border-radius: 5px;
-            background-color: white;
-            box-shadow: 2px 2px 5px rgba(0,0,0,0.1);
-        }
+        /* Horizontal Scroll Grid */
+        .scroll-container { display: flex; overflow-x: auto; gap: 20px; padding: 10px 0; border: 1px solid #ddd; background: #fff; }
+        .card { min-width: 200px; border: 1px solid #ccc; padding: 10px; text-align: center; border-radius: 5px; background-color: white; box-shadow: 2px 2px 5px rgba(0,0,0,0.1); }
         .card img { width: 100%; height: 120px; object-fit: contain; background: #eee; }
         .price { color: #28a745; font-weight: bold; }
         .type-badge { background: #007bff; color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.8em; }
 
         /* Footer */
-        .footer {
-            border-top: 2px solid #000;
-            margin-top: 40px;
-            padding: 20px;
-            text-align: center;
-            background-color: #f1f1f1;
-        }
+        .footer { border-top: 2px solid #000; margin-top: 40px; padding: 20px; text-align: center; background-color: #f1f1f1; }
 
         /* --- SIDEBAR CSS --- */
-        .cart-sidebar {
-            height: 100%;
-            width: 350px;
-            position: fixed;
-            z-index: 9999;
-            top: 0;
-            right: -350px; /* Hidden by default */
-            background-color: white;
-            box-shadow: -2px 0 10px rgba(0,0,0,0.2);
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sidebar-header {
-            padding: 20px;
-            background: #333;
-            color: white;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        
-        .sidebar-content {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-        }
-        
-        .sidebar-footer {
-            padding: 20px;
-            border-top: 1px solid #ddd;
-            background: #f9f9f9;
-        }
-        
-        .mini-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 10px;
-            font-size: 14px;
-        }
-        
-        .view-cart-btn {
-            width: 100%;
-            background: #333;
-            color: white;
-            padding: 12px;
-            text-align: center;
-            text-decoration: none;
-            display: block;
-            margin-top: 10px;
-            font-weight: bold;
-        }
-
+        .cart-sidebar { height: 100%; width: 350px; position: fixed; z-index: 9999; top: 0; right: -350px; background-color: white; box-shadow: -2px 0 10px rgba(0,0,0,0.2); transition: 0.3s; display: flex; flex-direction: column; }
+        .sidebar-header { padding: 20px; background: #333; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .sidebar-content { flex-grow: 1; padding: 20px; overflow-y: auto; }
+        .sidebar-footer { padding: 20px; border-top: 1px solid #ddd; background: #f9f9f9; }
+        .mini-item { display: flex; justify-content: space-between; margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px; font-size: 14px; }
+        .view-cart-btn { width: 100%; background: #333; color: white; padding: 12px; text-align: center; text-decoration: none; display: block; margin-top: 10px; font-weight: bold; }
         .close-btn { cursor: pointer; font-size: 24px; }
+
+        /* Delete Button Style */
+        .delete-btn { background-color: #ff4d4d; color: white; border: none; border-radius: 4px; width: 24px; height: 24px; cursor: pointer; margin-left: 10px; font-size: 16px; line-height: 24px; text-align: center; padding: 0; font-weight: bold; transition: background 0.2s; }
+        .delete-btn:hover { background-color: #cc0000; }
     </style>
 </head>
 <body>
     
     <div class="navbar">
         <div class="logo">Home</div> 
-        
         <div class="search-container">
             <form action="search_results.php" method="GET">
                 <input type="text" name="query" placeholder="Search bar...">
                 <button type="submit">🔍</button>
             </form>
         </div>
-
         <div class="nav-links">
             <a href="pc_builder.php">PC Builder</a>
-            
             <a href="javascript:void(0)" onclick="toggleCart()">Cart</a>
-            
             <a href="account.php">Account</a>
             <a href="logout.php" style="color: #ff6b6b;">Logout</a>
         </div>
@@ -186,7 +103,6 @@ $listing_result = $conn->query($listing_sql);
     </div>
 
     <div class="container">
-
         <h2>User Details</h2>
         <div class="user-details">
             <p><strong>Name:</strong> <?php echo htmlspecialchars($user_data['name']); ?></p>
@@ -202,7 +118,7 @@ $listing_result = $conn->query($listing_sql);
                     <div class="card">
                         <img src="images/<?php echo htmlspecialchars($row['image']); ?>" alt="Part" onerror="this.onerror=null; this.src='https://via.placeholder.com/150';">
                         <h3><?php echo htmlspecialchars($row['name']); ?></h3>
-                        <p class="price">$<?php echo $row['price']; ?></p>
+                        <p class="price">Tk <?php echo $row['price']; ?></p>
                         <p><?php echo htmlspecialchars($row['brand']); ?></p>
                         <form action="cart_actions.php" method="POST">
                             <input type="hidden" name="action" value="add">
@@ -228,7 +144,7 @@ $listing_result = $conn->query($listing_sql);
                     <div class="card" style="border-color: #007bff;">
                         <h3><?php echo htmlspecialchars($row['title']); ?></h3>
                         <span class="type-badge"><?php echo $row['type']; ?></span>
-                        <p class="price">$<?php echo $row['price']; ?></p>
+                        <p class="price">Tk <?php echo $row['price']; ?></p>
                         <p>Status: <?php echo $row['status']; ?></p>
                         <button>View Details</button>
                     </div>
@@ -237,7 +153,6 @@ $listing_result = $conn->query($listing_sql);
                 <p style="padding: 20px;">No active listings found.</p>
             <?php endif; ?>
         </div>
-
     </div>
 
     <div class="footer">
@@ -253,10 +168,11 @@ $listing_result = $conn->query($listing_sql);
 
         <div class="sidebar-content">
             <?php
-            // MINI CART PHP LOGIC
             if (isset($_SESSION['users_id'])) {
                 $sb_uid = $_SESSION['users_id'];
-                $sb_sql = "SELECT p.name, p.price, ci.quantity 
+                
+                // --- FIX 1: ADDED p.part_id TO SELECT ---
+                $sb_sql = "SELECT p.part_id, p.name, p.price, ci.quantity 
                            FROM Cart_Item ci 
                            JOIN Cart c ON ci.cart_id = c.cart_id 
                            JOIN PC_Part p ON ci.part_id = p.part_id 
@@ -269,10 +185,22 @@ $listing_result = $conn->query($listing_sql);
                     while($item = $sb_res->fetch_assoc()) {
                         $line_total = $item['price'] * $item['quantity'];
                         $sb_total += $line_total;
+                        
                         echo "<div class='mini-item'>";
                         echo "<div><strong>{$item['name']}</strong><br>Qty: {$item['quantity']}</div>";
-                        echo "<div>$" . number_format($line_total, 2) . "</div>";
-                        echo "</div>";
+                        
+                        // --- FIX 2: ADDED DELETE BUTTON FORM ---
+                        echo "<div style='display:flex; align-items:center;'>";
+                        echo "<div>Tk " . number_format($line_total, 2) . "</div>";
+                        
+                        echo "<form action='cart_actions.php' method='POST' style='margin:0;'>";
+                        echo "<input type='hidden' name='action' value='remove'>";
+                        echo "<input type='hidden' name='part_id' value='{$item['part_id']}'>";
+                        echo "<button type='submit' class='delete-btn' title='Remove Item'>&times;</button>";
+                        echo "</form>";
+                        echo "</div>"; // End flex div
+                        
+                        echo "</div>"; // End mini-item
                     }
                 } else {
                     echo "<p style='text-align:center;'>Cart is empty.</p>";
@@ -286,7 +214,7 @@ $listing_result = $conn->query($listing_sql);
         <div class="sidebar-footer">
             <div style="display:flex; justify-content:space-between; font-weight:bold; margin-bottom:10px;">
                 <span>Subtotal:</span>
-                <span>$<?php echo isset($sb_total) ? number_format($sb_total, 2) : '0.00'; ?></span>
+                <span>Tk <?php echo isset($sb_total) ? number_format($sb_total, 2) : '0.00'; ?></span>
             </div>
             <a href="cart.php" class="view-cart-btn">VIEW CART</a>
         </div>

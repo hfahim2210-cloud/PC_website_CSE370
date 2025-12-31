@@ -135,7 +135,7 @@ if (isset($_GET['id'])) {
         <div class="info-section">
             <h1 class="product-title"><?php echo htmlspecialchars($item['title']); ?></h1>
             
-            <div class="product-price">$<?php echo number_format($item['price']); ?></div>
+            <div class="product-price">Tk<?php echo number_format($item['price']); ?></div>
 
             <div>
                 <?php if($item['type'] == 'Sell'): ?>

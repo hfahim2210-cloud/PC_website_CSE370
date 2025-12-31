@@ -124,7 +124,7 @@ $total_items = 0;
                 <img src="images/<?php echo htmlspecialchars($row['image']); ?>" alt="Img" onerror="this.src='https://via.placeholder.com/150';">
                 <div class="item-details">
                     <h4><?php echo htmlspecialchars($row['name']); ?></h4>
-                    <p style="color: #28a745; font-weight: bold;">$<?php echo number_format($row['price'], 2); ?></p>
+                    <p style="color: #28a745; font-weight: bold;">Tk<?php echo number_format($row['price'], 2); ?></p>
                 </div>
                 
                 <div class="qty-box">
@@ -153,9 +153,9 @@ $total_items = 0;
 
     <div class="price-summary">
         <h3>Price Details</h3>
-        <div class="summary-row"><span>Subtotal</span><span>$<?php echo number_format($total_price, 2); ?></span></div>
-        <div class="summary-row"><span>Discount</span><span>$0.00</span></div>
-        <div class="total-row"><span>Total</span><span>$<?php echo number_format($total_price, 2); ?></span></div>
+        <div class="summary-row"><span>Subtotal</span><span>Tk<?php echo number_format($total_price, 2); ?></span></div>
+        <div class="summary-row"><span>Discount</span><span>Tk0.00</span></div>
+        <div class="total-row"><span>Total</span><span>Tk<?php echo number_format($total_price, 2); ?></span></div>
 
         <button class="btn-checkout" onclick="window.location.href='checkout.php'">Checkout</button>
         <a href="index.php" class="btn-continue">Continue Shopping</a>
