@@ -120,12 +120,24 @@ $result = $conn->query($sql);
             font-weight: bold;
             border-radius: 4px;
             color: white;
+            box-sizing: border-box; /* Ensures padding doesn't break width */
         }
         .btn-mark-sold { background-color: #dc3545; } /* Red */
         .btn-mark-sold:hover { background-color: #c82333; }
         
         .btn-mark-active { background-color: #007bff; } /* Blue */
         .btn-mark-active:hover { background-color: #0069d9; }
+
+        /* --- ADDED: Edit Button Style --- */
+        .btn-edit {
+            background-color: #ffc107; /* Amber/Yellow */
+            color: #333;
+            text-decoration: none;
+            display: block; /* Important for <a> tag to fill width */
+            text-align: center;
+            margin-bottom: 10px; /* Space between Edit and Toggle */
+        }
+        .btn-edit:hover { background-color: #e0a800; }
 
         .back-btn { display: inline-block; margin-bottom: 20px; color: #333; text-decoration: none; }
         .back-btn:hover { text-decoration: underline; }
@@ -178,6 +190,8 @@ $result = $conn->query($sql);
                         <div class="status-badge '.$status_class.'">'.$status_label.'</div>
                         
                         <div class="card-actions">
+                            <a href="edit_listing.php?id='.$row['listing_id'].'" class="btn-toggle btn-edit">Edit Details</a>
+
                             <form method="POST">
                                 <input type="hidden" name="toggle_id" value="'.$row['listing_id'].'">
                                 <input type="hidden" name="current_status" value="'.$row['status'].'">

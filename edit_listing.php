@@ -120,9 +120,7 @@ else if ($_SERVER["REQUEST_METHOD"] == "POST") {
 <body>
 
     <div class="navbar">
-        <div class="logo">PC Shop</div>
         <div class="nav-links">
-            <a href="index.php">Home</a>
             <a href="my_listings.php">Back to My Listings</a>
         </div>
     </div>

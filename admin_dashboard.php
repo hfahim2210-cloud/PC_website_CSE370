@@ -8,24 +8,38 @@ if (!isset($_SESSION['users_id']) || $_SESSION['role'] !== 'Admin') {
     exit();
 }
 
-// --- 2. FETCH DATA ---
+$msg = "";
+
+// --- 2. HANDLE ACTIONS (DELETE USER) ---
+if (isset($_GET['delete_user'])) {
+    $delete_id = intval($_GET['delete_user']);
+    
+    // Prevent Admin from deleting themselves
+    if ($delete_id == $_SESSION['users_id']) {
+        $msg = "Error: You cannot delete your own account while logged in.";
+    } else {
+        $del_sql = "DELETE FROM Users WHERE users_id = $delete_id";
+        if ($conn->query($del_sql)) {
+            $msg = "User deleted successfully.";
+        } else {
+            $msg = "Error deleting user: " . $conn->error;
+        }
+    }
+}
+
+// --- 3. FETCH DATA ---
 
 // A. Users (Section 1)
 $user_sql = "SELECT users_id, name, email, role, address, manager_id FROM Users";
 $user_result = $conn->query($user_sql);
 
-// B. Suppliers (Section 2)
-$supplier_sql = "SELECT * FROM Supplier";
-$supplier_result = $conn->query($supplier_sql);
-
-// C. Orders (Section 3)
-// 1. Get Total Order Count (All time)
+// B. Orders (Section 2 - Renumbered)
+// 1. Get Total Order Count
 $count_sql = "SELECT COUNT(*) as total FROM Orders";
 $count_result = $conn->query($count_sql);
 $total_orders = $count_result->fetch_assoc()['total'];
 
-// 2. Get Active Orders (Pending or Paid) - Joined with Users to show who bought it
-// We assume 'Shipped' is history, so 'Pending' and 'Paid' are active.
+// 2. Get Active Orders
 $order_sql = "SELECT o.order_id, u.name as user_name, o.total_amount, o.status, o.created_at 
               FROM Orders o 
               JOIN Users u ON o.users_id = u.users_id 
@@ -46,6 +60,9 @@ $order_result = $conn->query($order_sql);
         h1 { text-align: center; margin-bottom: 30px; color: #2c3e50; }
         h3 { border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-top: 40px; color: #007bff; }
         
+        /* Alerts */
+        .alert { padding: 10px; background-color: #d1ecf1; color: #0c5460; border-radius: 5px; margin-bottom: 20px; border: 1px solid #bee5eb; }
+
         /* Table Styles */
         table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.95em; }
         th, td { padding: 12px; text-align: left; border-bottom: 1px solid #ddd; }
@@ -56,27 +73,30 @@ $order_result = $conn->query($order_sql);
         .status-pending { background-color: #ffc107; color: #000; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
         .status-paid { background-color: #28a745; color: white; padding: 3px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
         
-        /* Buttons */
-        .btn-logout { display: inline-block; padding: 8px 15px; background-color: #dc3545; color: white; text-decoration: none; border-radius: 5px; float: right; font-weight: bold; }
-        .btn-logout:hover { background-color: #c82333; }
+        /* Action Bar (Top) */
+        .action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
 
-        /* Order History Box (Bottom Right) */
+        /* Buttons */
+        .btn { padding: 10px 15px; text-decoration: none; border-radius: 5px; font-weight: bold; display: inline-block; }
+        .btn-logout { background-color: #dc3545; color: white; }
+        .btn-logout:hover { background-color: #c82333; }
+        
+        .btn-add { background-color: #28a745; color: white; } /* Green for Add Item */
+        .btn-add:hover { background-color: #218838; }
+
+        .btn-delete { 
+            background-color: #dc3545; color: white; padding: 5px 10px; 
+            text-decoration: none; border-radius: 3px; font-size: 0.8em; 
+        }
+        .btn-delete:hover { background-color: #bd2130; }
+
+        /* Order History Box */
         .history-container {
-            display: flex;
-            justify-content: flex-end; /* Pushes content to the right */
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 1px solid #eee;
+            display: flex; justify-content: flex-end; margin-top: 30px; padding-top: 20px; border-top: 1px solid #eee;
         }
         .history-box {
-            background-color: #6c757d;
-            color: white;
-            padding: 15px 25px;
-            text-decoration: none;
-            border-radius: 5px;
-            font-weight: bold;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-            transition: background 0.3s;
+            background-color: #6c757d; color: white; padding: 15px 25px; text-decoration: none;
+            border-radius: 5px; font-weight: bold; box-shadow: 0 2px 5px rgba(0,0,0,0.2); transition: background 0.3s;
         }
         .history-box:hover { background-color: #5a6268; }
         .stat-box { font-size: 1.1em; font-weight: bold; margin-bottom: 10px; }
@@ -85,10 +105,19 @@ $order_result = $conn->query($order_sql);
 <body>
 
 <div class="container">
-    <a href="logout.php" class="btn-logout">Logout</a>
+    
+    <div class="action-bar">
+        <a href="add_item.php" class="btn btn-add">+ Add Item to Inventory</a>
+        <a href="logout.php" class="btn btn-logout">Logout</a>
+    </div>
+
     <h1>Admin Dashboard</h1>
 
-    <h3>Section 1: User Management</h3>
+    <?php if ($msg): ?>
+        <div class="alert"><?php echo $msg; ?></div>
+    <?php endif; ?>
+
+    <h3>User Management</h3>
     <?php if ($user_result->num_rows > 0): ?>
         <table>
             <thead>
@@ -99,7 +128,7 @@ $order_result = $conn->query($order_sql);
                     <th>Role</th>
                     <th>Address</th>
                     <th>Manager ID</th>
-                </tr>
+                    <th>Action</th> </tr>
             </thead>
             <tbody>
                 <?php while($row = $user_result->fetch_assoc()): ?>
@@ -114,6 +143,17 @@ $order_result = $conn->query($order_sql);
                     </td>
                     <td><?php echo htmlspecialchars($row['address']); ?></td>
                     <td><?php echo $row['manager_id'] ? $row['manager_id'] : '-'; ?></td>
+                    <td>
+                        <?php if($row['users_id'] != $_SESSION['users_id']): ?>
+                            <a href="?delete_user=<?php echo $row['users_id']; ?>" 
+                               class="btn-delete"
+                               onclick="return confirm('Are you sure you want to permanently delete this user?');">
+                                X
+                            </a>
+                        <?php else: ?>
+                            <span style="color:#ccc; font-size:0.8em;">(You)</span>
+                        <?php endif; ?>
+                    </td>
                 </tr>
                 <?php endwhile; ?>
             </tbody>
@@ -122,31 +162,7 @@ $order_result = $conn->query($order_sql);
         <p>No users found.</p>
     <?php endif; ?>
 
-
-    <h3>Section 2: Suppliers List</h3>
-    <?php if ($supplier_result->num_rows > 0): ?>
-        <table>
-            <thead>
-                <tr>
-                    <th>Supplier Name</th>
-                    <th>Contact Info</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while($row = $supplier_result->fetch_assoc()): ?>
-                <tr>
-                    <td><?php echo htmlspecialchars($row['supplier_name']); ?></td>
-                    <td><?php echo htmlspecialchars($row['contact']); ?></td>
-                </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-    <?php else: ?>
-        <p>No suppliers found in database.</p>
-    <?php endif; ?>
-
-
-    <h3>Section 3: Order Management</h3>
+    <h3>Order Management</h3>
     
     <div class="stat-box">
         Total Orders Placed (All Time): <?php echo $total_orders; ?>
@@ -169,7 +185,7 @@ $order_result = $conn->query($order_sql);
                 <tr>
                     <td>#<?php echo $row['order_id']; ?></td>
                     <td><?php echo htmlspecialchars($row['user_name']); ?></td>
-                    <td>$<?php echo number_format($row['total_amount'], 2); ?></td>
+                    <td>Tk<?php echo number_format($row['total_amount'], 2); ?></td>
                     <td>
                         <span class="<?php echo ($row['status'] == 'Pending') ? 'status-pending' : 'status-paid'; ?>">
                             <?php echo $row['status']; ?>
@@ -185,7 +201,7 @@ $order_result = $conn->query($order_sql);
     <?php endif; ?>
 
     <div class="history-container">
-        <a href="#" class="history-box" onclick="alert('This will link to order_history.php later!');">
+        <a href="order_history.php" class="history-box">
             View Order History ➜
             <br>
             <span style="font-size: 0.8em; font-weight: normal;">(Shipped & Canceled Orders)</span>
