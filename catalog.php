@@ -5,12 +5,22 @@ require 'DBconnect.php';
 // --- 1. NEW FILTER LOGIC (Matches Listings Page) ---
 
 // Initialize variables
+// [FIX] Capture the search query
+$search_query = isset($_GET['query']) ? trim($_GET['query']) : ""; 
+
 $type_filter = isset($_GET['type']) ? $_GET['type'] : "All";
 $max_price   = isset($_GET['max_price']) ? intval($_GET['max_price']) : 200000; // Default max 200k
 $sort_option = isset($_GET['sort']) ? $_GET['sort'] : 'price_asc';
 
 // Start Building Query
 $sql = "SELECT * FROM PC_Part WHERE 1=1";
+
+// [FIX] Apply Search Filter if query exists
+if (!empty($search_query)) {
+    $safe_search = $conn->real_escape_string($search_query);
+    // Search in Name, Brand, or Model
+    $sql .= " AND (name LIKE '%$safe_search%' OR brand LIKE '%$safe_search%' OR model LIKE '%$safe_search%')";
+}
 
 // A. Filter by Type (Single Selection)
 if ($type_filter != "All" && !empty($type_filter)) {
@@ -119,9 +129,16 @@ $all_types = ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU', 'Casing', 'C
 
     <div class="navbar">
         <a href="index.php">Home</a>
+        
         <div style="flex-grow: 1; text-align: center;">
-            <input type="text" placeholder="Search..." style="width: 50%; padding: 5px;">
+            <form action="catalog.php" method="GET" style="display: inline-block; width: 50%;">
+                <div style="display: flex;">
+                    <input type="text" name="query" placeholder="Search..." value="<?php echo htmlspecialchars($search_query); ?>" style="width: 100%; padding: 5px;">
+                    <button type="submit" style="padding: 5px; cursor: pointer;">🔍</button>
+                </div>
+            </form>
         </div>
+
         <div>
             <a href="pc_builder.php">PC Builder</a>
             <a href="javascript:void(0)" onclick="toggleCart()">Cart</a>
@@ -133,6 +150,7 @@ $all_types = ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU', 'Casing', 'C
     <div class="main-container">
         
         <form class="sidebar" action="catalog.php" method="GET">
+            <input type="hidden" name="query" value="<?php echo htmlspecialchars($search_query); ?>">
             <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sort_option); ?>">
 
             <h3>Filters</h3>
@@ -170,6 +188,7 @@ $all_types = ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU', 'Casing', 'C
             
             <div class="toolbar">
                 <form id="sortForm" action="catalog.php" method="GET" style="margin:0;">
+                    <input type="hidden" name="query" value="<?php echo htmlspecialchars($search_query); ?>">
                     <input type="hidden" name="type" value="<?php echo htmlspecialchars($type_filter); ?>">
                     <input type="hidden" name="max_price" value="<?php echo $max_price; ?>">
 
@@ -208,7 +227,7 @@ $all_types = ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU', 'Casing', 'C
                         </div>
                     <?php endwhile; ?>
                 <?php else: ?>
-                    <p>No products found matching your criteria.</p>
+                    <p>No products found matching your search.</p>
                 <?php endif; ?>
             </div>
 
@@ -230,7 +249,6 @@ $all_types = ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU', 'Casing', 'C
             if (isset($_SESSION['users_id'])) {
                 $sb_uid = $_SESSION['users_id'];
                 
-                // UPDATED SQL: Added p.part_id to select list
                 $sb_sql = "SELECT p.part_id, p.name, p.price, ci.quantity 
                         FROM Cart_Item ci 
                         JOIN Cart c ON ci.cart_id = c.cart_id 
@@ -248,19 +266,17 @@ $all_types = ['CPU', 'GPU', 'RAM', 'Motherboard', 'Storage', 'PSU', 'Casing', 'C
                         echo "<div class='mini-item'>";
                         echo "<div><strong>{$item['name']}</strong><br>Qty: {$item['quantity']}</div>";
                         
-                        // Flex container for Price + Delete Button
                         echo "<div style='display:flex; align-items:center;'>";
                         echo "<div>Tk " . number_format($line_total, 2) . "</div>";
                         
-                        // DELETE BUTTON FORM
                         echo "<form action='cart_actions.php' method='POST' style='margin:0;'>";
                         echo "<input type='hidden' name='action' value='remove'>";
                         echo "<input type='hidden' name='part_id' value='{$item['part_id']}'>";
                         echo "<button type='submit' class='delete-btn' title='Remove Item'>&times;</button>";
                         echo "</form>";
                         
-                        echo "</div>"; // End flex container
-                        echo "</div>"; // End mini-item
+                        echo "</div>"; 
+                        echo "</div>"; 
                     }
                 } else {
                     echo "<p style='text-align:center;'>Cart is empty.</p>";

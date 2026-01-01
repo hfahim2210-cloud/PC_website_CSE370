@@ -77,7 +77,7 @@ $listing_result = $conn->query($listing_sql);
     <div class="navbar">
         <div class="logo">Home</div> 
         <div class="search-container">
-            <form action="search_results.php" method="GET">
+            <form action="catalog.php" method="GET">
                 <input type="text" name="query" placeholder="Search bar...">
                 <button type="submit">🔍</button>
             </form>
@@ -171,7 +171,6 @@ $listing_result = $conn->query($listing_sql);
             if (isset($_SESSION['users_id'])) {
                 $sb_uid = $_SESSION['users_id'];
                 
-                // --- FIX 1: ADDED p.part_id TO SELECT ---
                 $sb_sql = "SELECT p.part_id, p.name, p.price, ci.quantity 
                            FROM Cart_Item ci 
                            JOIN Cart c ON ci.cart_id = c.cart_id 
@@ -189,7 +188,6 @@ $listing_result = $conn->query($listing_sql);
                         echo "<div class='mini-item'>";
                         echo "<div><strong>{$item['name']}</strong><br>Qty: {$item['quantity']}</div>";
                         
-                        // --- FIX 2: ADDED DELETE BUTTON FORM ---
                         echo "<div style='display:flex; align-items:center;'>";
                         echo "<div>Tk " . number_format($line_total, 2) . "</div>";
                         
@@ -198,9 +196,9 @@ $listing_result = $conn->query($listing_sql);
                         echo "<input type='hidden' name='part_id' value='{$item['part_id']}'>";
                         echo "<button type='submit' class='delete-btn' title='Remove Item'>&times;</button>";
                         echo "</form>";
-                        echo "</div>"; // End flex div
+                        echo "</div>"; 
                         
-                        echo "</div>"; // End mini-item
+                        echo "</div>"; 
                     }
                 } else {
                     echo "<p style='text-align:center;'>Cart is empty.</p>";
