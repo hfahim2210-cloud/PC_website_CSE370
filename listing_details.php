@@ -7,8 +7,12 @@ if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); }
 if (isset($_GET['id'])) {
     $listing_id = intval($_GET['id']);
     
-    // 2. Fetch Listing + Seller Details
-    $sql = "SELECT l.*, u.name AS seller_name, u.email AS seller_email 
+    // 2. Fetch Listing + Seller Details + Phone Number
+    // We use a subquery to fetch the phone number(s) from the users_Phone table
+    $sql = "SELECT l.*, 
+                   u.name AS seller_name, 
+                   u.email AS seller_email, 
+                   (SELECT GROUP_CONCAT(phone SEPARATOR ', ') FROM users_Phone WHERE users_id = u.users_id) AS phone_number
             FROM Listing l 
             JOIN Users u ON l.users_id = u.users_id 
             WHERE l.listing_id = $listing_id";
@@ -98,14 +102,35 @@ if (isset($_GET['id'])) {
         
         .description { line-height: 1.6; color: #555; margin-bottom: 30px; white-space: pre-wrap; }
 
-        .action-buttons { margin-top: auto; display: flex; gap: 15px; }
+        .action-buttons { margin-top: auto; display: flex; flex-direction: column; gap: 15px; }
         
+        /* Updated Button Styles */
+        .btn-row { display: flex; gap: 15px; }
         .btn { padding: 12px 25px; text-decoration: none; border-radius: 5px; font-weight: bold; text-align: center; flex: 1; cursor: pointer; border: none; font-size: 1em; }
-        .btn-primary { background-color: #28a745; color: white; }
-        .btn-primary:hover { background-color: #218838; }
+        
+        .btn-contact { background-color: #007bff; color: white; }
+        .btn-contact:hover { background-color: #0056b3; }
         
         .btn-secondary { background-color: #6c757d; color: white; }
         .btn-secondary:hover { background-color: #5a6268; }
+
+        /* Hidden Phone Dropdown */
+        #contact-dropdown {
+            display: none; /* Hidden by default */
+            background-color: #e8f0fe;
+            color: #1a73e8;
+            padding: 15px;
+            border: 1px solid #b3d7ff;
+            border-radius: 5px;
+            text-align: center;
+            margin-top: 10px;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
         .footer { border-top: 2px solid #333; margin-top: 50px; padding: 20px; text-align: center; background-color: #fff; color: #555; }
     </style>
@@ -115,7 +140,7 @@ if (isset($_GET['id'])) {
     <div class="navbar">
         <a href="index.php" class="logo">Home</a> 
         <div class="search-container">
-            <form action="search_results.php" method="GET">
+            <form action="catalog.php" method="GET">
                 <input type="text" name="query" placeholder="Search bar...">
                 <button type="submit">🔍</button>
             </form>
@@ -157,8 +182,20 @@ if (isset($_GET['id'])) {
             </div>
 
             <div class="action-buttons">
-                <a href="checkout.php?listing_id=<?php echo $item['listing_id']; ?>" class="btn btn-primary">Buy Now</a>
-                <a href="listing.php" class="btn btn-secondary">Back to Listings</a>
+                <div class="btn-row">
+                    <button onclick="toggleContact()" class="btn btn-contact">Contact Seller</button>
+                    <a href="listing.php" class="btn btn-secondary">Back to Listings</a>
+                </div>
+
+                <div id="contact-dropdown">
+                    <strong>Call Seller:</strong> <br>
+                    <span style="font-size: 1.2em; font-weight: bold;">
+                        <?php 
+                        // If phone number is found, show it. Otherwise show message.
+                        echo !empty($item['phone_number']) ? htmlspecialchars($item['phone_number']) : "No phone number linked to this account."; 
+                        ?>
+                    </span>
+                </div>
             </div>
         </div>
     </div>
@@ -166,6 +203,17 @@ if (isset($_GET['id'])) {
     <div class="footer">
         <p>&copy; 2025 PC Shop Project</p>
     </div>
+
+    <script>
+        function toggleContact() {
+            var dropdown = document.getElementById("contact-dropdown");
+            if (dropdown.style.display === "none" || dropdown.style.display === "") {
+                dropdown.style.display = "block";
+            } else {
+                dropdown.style.display = "none";
+            }
+        }
+    </script>
 
 </body>
 </html>
