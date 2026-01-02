@@ -18,15 +18,25 @@ if (isset($_GET['delete_user'])) {
     if ($delete_id == $_SESSION['users_id']) {
         $msg = "Error: You cannot delete your own account while logged in.";
     } else {
+        // STEP 1: Delete related Orders first
+        // This removes the link to the Cart, fixing your Foreign Key Error.
+        $conn->query("DELETE FROM Orders WHERE users_id = $delete_id");
+
+        // STEP 2: Delete related Listings (Posts)
+        // This prevents errors if the user has items for sale.
+        $conn->query("DELETE FROM Listing WHERE users_id = $delete_id");
+
+        // STEP 3: Now it is safe to delete the User
+        // (The Cart will automatically be deleted by the database)
         $del_sql = "DELETE FROM Users WHERE users_id = $delete_id";
+        
         if ($conn->query($del_sql)) {
-            $msg = "User deleted successfully.";
+            $msg = "User and all related data deleted successfully.";
         } else {
             $msg = "Error deleting user: " . $conn->error;
         }
     }
 }
-
 // --- 3. FETCH DATA ---
 
 // A. Users (Section 1)
