@@ -114,7 +114,7 @@ $result = $stmt->get_result();
                         Power: <?php echo $row['watts']; ?>W
                     </div>
                     
-                    <div class="p-price">$<?php echo number_format($row['price'], 2); ?></div>
+                    <div class="p-price">Tk<?php echo number_format($row['price'], 2); ?></div>
                     
                     <form method="POST">
                         <input type="hidden" name="part_id" value="<?php echo $row['part_id']; ?>">

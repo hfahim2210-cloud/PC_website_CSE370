@@ -237,7 +237,7 @@ $component_slots = ['CPU', 'Motherboard', 'RAM', 'Storage', 'GPU', 'PSU', 'Casin
     
     <div class="summary-bar">
         <div class="summary-info">
-            Total Price: <span class="green-text">$<?php echo number_format($total_price, 2); ?></span> &nbsp;|&nbsp; 
+            Total Price: <span class="green-text">Tk<?php echo number_format($total_price, 2); ?></span> &nbsp;|&nbsp; 
             Estimated Power: <span class="green-text"><?php echo $total_watts; ?>W</span>
         </div>
         
@@ -265,7 +265,7 @@ $component_slots = ['CPU', 'Motherboard', 'RAM', 'Storage', 'GPU', 'PSU', 'Casin
                         <div class="comp-name active">
                             <?php echo htmlspecialchars($selected_parts[$category]['name']); ?> 
                             <span style="float:right; font-weight:bold; margin-right:25px;">
-                                $<?php echo number_format($selected_parts[$category]['price'], 2); ?>
+                                Tk<?php echo number_format($selected_parts[$category]['price'], 2); ?>
                             </span>
                         </div>
                     <?php else: ?>

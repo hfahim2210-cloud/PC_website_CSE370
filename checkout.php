@@ -283,7 +283,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['place_order'])) {
                     <?php foreach($cart_items as $item): ?>
                     <div class="item-row">
                         <span><?php echo $item['name']; ?> (x<?php echo $item['quantity']; ?>)</span>
-                        <span>$<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
+                        <span>Tk<?php echo number_format($item['price'] * $item['quantity'], 2); ?></span>
                     </div>
                     <?php endforeach; ?>
                 </div>
@@ -291,20 +291,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['place_order'])) {
                 <div class="totals">
                     <div class="total-row">
                         <span>Subtotal</span>
-                        <span>$<?php echo number_format($subtotal, 2); ?></span>
+                        <span>Tk<?php echo number_format($subtotal, 2); ?></span>
                     </div>
                     <div class="total-row">
                         <span>Discount</span>
-                        <span>$0.00</span>
+                        <span>Tk0.00</span>
                     </div>
                     <div class="total-row">
                         <span>Delivery Charge</span>
-                        <span id="delivery-cost">$150.00</span>
+                        <span id="delivery-cost">Tk150.00</span>
                     </div>
                     <hr style="border-color: #ddd; width: 100%;">
                     <div class="total-row grand-total">
                         <span>Total</span>
-                        <span id="final-total">$<?php echo number_format($subtotal + 150, 2); ?></span>
+                        <span id="final-total">Tk<?php echo number_format($subtotal + 150, 2); ?></span>
                     </div>
                 </div>
             </div>
