@@ -51,7 +51,7 @@ if ($action == 'add') {
             $conn->query("INSERT INTO Cart_Item (cart_id, part_id, quantity) VALUES ('$cart_id', '$part_id', 1)");
         }
     } else {
-        // Optional: Set a session message here like "Not enough stock!"
+        //"Not enough stock!"
     }
     
     header("Location: " . $_SERVER['HTTP_REFERER']); 
@@ -76,7 +76,7 @@ if ($action == 'update_qty') {
             if ($curr + 1 <= $stock) {
                 $conn->query("UPDATE Cart_Item SET quantity = quantity + 1 WHERE cart_id='$cart_id' AND part_id='$part_id'");
             } else {
-                 // Stock limit reached - do nothing (or alert user)
+                 // Stock limit reached 
             }
         } 
         elseif ($direction == 'decrease') {
