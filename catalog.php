@@ -5,7 +5,7 @@ require 'DBconnect.php';
 // --- 1. NEW FILTER LOGIC (Matches Listings Page) ---
 
 // Initialize variables
-// [FIX] Capture the search query
+// Capture the search query
 $search_query = isset($_GET['query']) ? trim($_GET['query']) : ""; 
 
 $type_filter = isset($_GET['type']) ? $_GET['type'] : "All";
@@ -15,7 +15,7 @@ $sort_option = isset($_GET['sort']) ? $_GET['sort'] : 'price_asc';
 // Start Building Query
 $sql = "SELECT * FROM PC_Part WHERE 1=1";
 
-// [FIX] Apply Search Filter if query exists
+// Apply Search Filter if query exists
 if (!empty($search_query)) {
     $safe_search = $conn->real_escape_string($search_query);
     // Search in Name, Brand, or Model
