@@ -18,6 +18,7 @@ $stmt->execute();
 $user = $stmt->get_result()->fetch_assoc();
 $stmt->close();
 
+/*
 // 3. Fetch Cart Items
 $cart_id = 0;
 $cart_items = [];
@@ -29,7 +30,7 @@ $c_stmt = $conn->prepare($c_sql);
 $c_stmt->bind_param("i", $user_id);
 $c_stmt->execute();
 $c_res = $c_stmt->get_result();
-
+*/
 // 3. Fetch Cart Items
 $cart_id = 0;
 $cart_items = [];
