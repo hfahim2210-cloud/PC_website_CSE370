@@ -81,7 +81,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['place_order'])) {
     
     // 1. Determine Address
     if ($del_method === 'pickup') {
-        $final_address = "Store Pickup: Multiplan, Eliphant Road, Dhaka";
+        $final_address = "Store Pickup: Multiplan, Elephant Road, Dhaka";
     } else {
         $courier_opt = $_POST['courier_address_option']; // 'current' or 'other'
         if ($courier_opt === 'current') {
@@ -259,7 +259,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['place_order'])) {
                 </div>
 
                 <div id="pickup-info" class="hidden" style="color: #28a745; margin-bottom:15px; font-weight:bold;">
-                    📍 Multiplan, Eliphant Road, Dhaka
+                    📍 Multiplan, Elephant Road, Dhaka
                 </div>
 
                 <div id="courier-options" class="sub-options" style="display: block;">
