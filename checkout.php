@@ -1,8 +1,7 @@
 <?php
 session_start();
 // Database Connection
-$conn = new mysqli('localhost', 'root', '', 'pc_website'); // <--- Confirmed DB Name
-if ($conn->connect_error) { die("Connection failed: " . $conn->connect_error); }
+require 'DBconnect.php';
 
 // 1. Check Login
 if (!isset($_SESSION['users_id'])) { // Changed to 'users_id' to match your Cart code
