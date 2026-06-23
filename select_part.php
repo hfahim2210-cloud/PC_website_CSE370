@@ -21,7 +21,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['part_id'])) {
     $part_id = $_POST['part_id'];
     
     // A. "Swap" Logic: First, remove any existing part of this specific TYPE from the build.
-    // This ensures you don't end up with 2 CPUs in one build.
+    // This ensures you don't end up with 2 components of same type in one build.
     // We need to find if there is already a part with this type in the build.
     
     // First, find all items currently in this build

@@ -76,6 +76,7 @@ $listing_result = $conn->query($listing_sql);
     
     <div class="navbar">
         <div class="logo">Home</div> 
+        <!--Search mechanism-->
         <div class="search-container">
             <form action="catalog.php" method="GET">
                 <input type="text" name="query" placeholder="Search bar...">

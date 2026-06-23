@@ -82,7 +82,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['add_all_to_cart'])) {
         $pid = (int)$row['part_id'];
         $qty = (int)$row['quantity'];
 
-        // --- THE FIX IS HERE ---
+        // --- THE FIX ---
         // If the part ID is 0 or invalid, SKIP IT. Do not try to insert it.
         if ($pid <= 0) {
             continue; 

@@ -2,10 +2,11 @@
 $servername = "localhost";
 $username = "root";
 $password = "";
-$dbname = "pc_website"; // Make sure this matches your PHPMyAdmin database name exactly
+$dbname = "pc_website"; // open the database named pc_website
 
-// FIX: Pass $dbname as the 4th parameter here
+//take the four information above & connect to the database.
 $conn = new mysqli($servername, $username, $password, $dbname);
+//saving this active connection into a variable named $conn
 
 // Check connection
 if ($conn->connect_error) {
